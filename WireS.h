@@ -47,7 +47,7 @@
 // Interrupt flag - uncomment and set below to make the specified pin high whenever the
 //                  I2C interrupt occurs.  This is useful as a trigger signal when using a logic analyzer.
 //
-#define I2C_INTR_FLAG_PIN 6
+//#define I2C_INTR_FLAG_PIN 6
 
 // ======================================================================================================
 // == End User Define Section ===========================================================================
