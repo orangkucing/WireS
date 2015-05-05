@@ -28,13 +28,13 @@ that makes ATtiny microcontroller's internal EEPROM accessible as an external I2
 
 Install Arduino IDE and Arduino core for ATtiny1634 and ATtiny841 to your PC.
 
-* [Arduino IDE download](http://www.arduino.cc/en/Main/Software "Arduino IDE")
-* [Arduino core for ATtiny1634 and ATtiny841](https://github.com/SpenceKonde/arduino-tiny-841 "A fork of shimniok's ( github.com/shimniok ) fork of arduino-tiny")
+* [Arduino IDE download](http://www.arduino.cc/en/Main/Software)
+* [Arduino core for ATtiny1634 and ATtiny841](https://github.com/SpenceKonde/arduino-tiny-841) A fork of shimniok's fork of arduino-tiny by SpenceKonde
 
 (Currently there's no Arduino core for ATtiny40 and ATtiny828.)
 
 Then download the zip file of WireS, unpack it to your library directory,
-and you should be ready to use WireS by including the header file as
+and you are ready to use WireS by including the header file as
 ```
 #include <WireS.h>
 ```
@@ -72,7 +72,7 @@ an array of data to send as bytes is _data_ whose size is in _length_.
 
 Wire.write() returns a value that is equal to the number of bytes written to the internal buffer
 and the value is not equal to the number of bytes actually transmitted through the I2C bus.
-In order to know the actual numbers sent please use Wire.onStop() and Wire.bytesSent() instead.
+In order to know the actual numbers sent please use Wire.bytesSent() in the handler of Wire.onStop() (or Wire.onAddrReceive) and Wire.bytesSent() instead.
 
 - - -
 ##### Wire.available()
@@ -101,6 +101,7 @@ _handler_: the function to be called when the slave receives its address; this s
 
 Returns true: the device send ACK to the master for going on;
 false: the device send NACK to the master and stop the current session.
+
 e.g.: ```boolean myHandler(uint8_t _address_, uint8_t _startcount_)```
 
 - - -
