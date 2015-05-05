@@ -41,8 +41,7 @@
 // ------------------------------------------------------------------------------------------------------
 // Tx/Rx buffer sizes - modify these as needed.
 //
-#define I2C_TX_BUFFER_LENGTH 64
-#define I2C_RX_BUFFER_LENGTH 64
+#define I2C_BUFFER_LENGTH 64
 
 // ------------------------------------------------------------------------------------------------------
 // Interrupt flag - uncomment and set below to make the specified pin high whenever the
@@ -77,15 +76,16 @@
 //
 struct i2cStruct
 {
-    uint8_t  rxBuffer[I2C_RX_BUFFER_LENGTH]; // Rx Buffer                         (ISR)
+    uint8_t  Buffer[I2C_BUFFER_LENGTH];      // Tx/Rx Buffer                      (ISR)
     volatile size_t   rxBufferIndex;         // Rx Index                          (User&ISR)
     volatile size_t   rxBufferLength;        // Rx Length                         (ISR)
-    uint8_t  txBuffer[I2C_TX_BUFFER_LENGTH]; // Tx Buffer                         (User)
     volatile size_t   txBufferIndex;         // Tx Index                          (User&ISR)
     volatile size_t   txBufferLength;        // Tx Length                         (User&ISR)
-    uint8_t  rxAddr;                         // Rx Address                        (ISR)
-    void (*user_onReceive)(size_t len);      // Slave Rx Callback Function        (User)
+    volatile uint8_t  startCount;            // repeated START count              (ISR)
+    boolean (*user_onAddrReceive)(uint8_t, uint8_t);  // Slave Addr Callback Function      (User)
+    void (*user_onReceive)(size_t);          // Slave Rx Callback Function        (User)
     void (*user_onRequest)(void);            // Slave Tx Callback Function        (User)
+    void (*user_onStop)(void);               // Stop Callback Function            (User)
 };
 
 extern "C" void i2c_isr_handler(struct i2cStruct* i2c);
@@ -114,7 +114,7 @@ public:
     // ------------------------------------------------------------------------------------------------------
     // Initialize I2C (base routine)
     //
-    static void begin_(struct i2cStruct* i2c, uint8_t address1, uint8_t address2);
+    static void begin_(struct i2cStruct* i2c, uint8_t address, uint8_t mask);
     //
     // Initialize I2C (Slave) - initializes I2C as Slave mode using address
     // return: none
@@ -126,17 +126,19 @@ public:
         begin_(i2c, (uint8_t)address, 0);
     }
     //
-    // Initialize I2C - initializes I2C as two address Slave
+    // Initialize I2C - initializes I2C as two address Slave or address range Slave
     // return: none
     // parameters:
-    //      address1 = 7bit for specifying 1st address
-    //      address2 = 7bit for specifying 2nd address
+    //      address = 7bit for specifying 1st address
+    //      mask = if bit[0]==1 then bit[7:1] for specifying 2nd address
+    //             if bit[0]==0 then bit[7:1] for address mask
     //
-    inline void begin(uint8_t address1, uint8_t address2)
+    inline void begin(uint8_t address, uint8_t mask)
     {
-        begin_(i2c, address1, address2);
+        begin_(i2c, address, mask);
     }
 
+    // ------------------------------------------------------------------------------------------------------
     // Write - write data byte to Tx buffer
     // return: 1=success, 0=fail
     // parameters:
@@ -209,20 +211,29 @@ public:
     inline void flush(void) {}
 
     // ------------------------------------------------------------------------------------------------------
-    // Get Rx Address - returns target address of incoming I2C command. Used for Slaves operating over an address range.
-    // return: rxAddr of last received command
+    // Get number of sent bytes
     //
-    inline uint8_t getRxAddr(void) { return i2c->rxAddr; }
+    inline size_t bytesSent(void) { return i2c->txBufferIndex; }
+
+    // ------------------------------------------------------------------------------------------------------
+    // Set callback function for Slave address received
+    //
+    inline void onAddrReceive(boolean (*function)(uint8_t, uint8_t)) { i2c->user_onAddrReceive = function; }
 
     // ------------------------------------------------------------------------------------------------------
     // Set callback function for Slave Rx
     //
-    inline void onReceive(void (*function)(size_t len)) { i2c->user_onReceive = function; }
+    inline void onReceive(void (*function)(size_t)) { i2c->user_onReceive = function; }
 
     // ------------------------------------------------------------------------------------------------------
     // Set callback function for Slave Tx
     //
     inline void onRequest(void (*function)(void)) { i2c->user_onRequest = function; }
+
+    // ------------------------------------------------------------------------------------------------------
+    // Set callback function for stop received after Slave Tx
+    //
+    inline void onStop(void (*function)(void)) { i2c->user_onStop = function; }
 
 };
 

@@ -62,18 +62,20 @@ i2c_tinyS::~i2c_tinyS()
 
 
 // ------------------------------------------------------------------------------------------------------
-// Initialize I2C - initializes I2C as two address Slave
+// Initialize I2C - initializes I2C as two address or address range Slave
 // return: none
 // parameters:
-//      address1 = 7bit address for specifying 1st Slave address
-//      address2 = 7bit address for specifying 2nd Slave address
+//      address = 7bit address for specifying 1st Slave address
+//      mask = 8bit integer;
+//             if bit[0]==1 then bit[7:1] 2nd Slave address
+//             if bit[0]==0 then bit[7:1] mask bits for address
 //
-void i2c_tinyS::begin_(struct i2cStruct* i2c, uint8_t address1, uint8_t address2)
+void i2c_tinyS::begin_(struct i2cStruct* i2c, uint8_t address, uint8_t mask)
 {
     I2C_INTR_FLAG_INIT; // init I2C interrupt flag if used
-    TWSA = (address1 << 1);
-    if (address2 != 0) {
-        TWSAM = (address2 << 1) + 1;
+    TWSA = (address << 1);
+    if (mask != 0) {
+        TWSAM = mask;
     }
     TWSCRA = (_BV(TWDIE) | _BV(TWASIE) | _BV(TWEN) | _BV(TWSIE));
 }
@@ -87,9 +89,9 @@ void i2c_tinyS::begin_(struct i2cStruct* i2c, uint8_t address1, uint8_t address2
 //
 size_t i2c_tinyS::write(uint8_t data)
 {
-    if(i2c->txBufferLength < I2C_TX_BUFFER_LENGTH)
+    if(i2c->txBufferLength < I2C_BUFFER_LENGTH)
     {
-        i2c->txBuffer[i2c->txBufferLength++] = data;
+        i2c->Buffer[i2c->txBufferLength++] = data;
         return 1;
     }
     return 0;
@@ -104,10 +106,10 @@ size_t i2c_tinyS::write(uint8_t data)
 //
 void i2c_tinyS::write(const uint8_t* data, size_t quantity)
 {
-    if(i2c->txBufferLength < I2C_TX_BUFFER_LENGTH)
+    if(i2c->txBufferLength < I2C_BUFFER_LENGTH)
     {
-        size_t avail = I2C_TX_BUFFER_LENGTH - i2c->txBufferLength;
-        uint8_t* dest = i2c->txBuffer + i2c->txBufferLength;
+        size_t avail = I2C_BUFFER_LENGTH - i2c->txBufferLength;
+        uint8_t* dest = i2c->Buffer + i2c->txBufferLength;
 
         if(quantity > avail)
         {
@@ -127,7 +129,7 @@ void i2c_tinyS::write(const uint8_t* data, size_t quantity)
 int i2c_tinyS::read_(struct i2cStruct* i2c)
 {
     if(i2c->rxBufferIndex >= i2c->rxBufferLength) return -1;
-    return i2c->rxBuffer[i2c->rxBufferIndex++];
+    return i2c->Buffer[i2c->rxBufferIndex++];
 }
 
 
@@ -138,7 +140,7 @@ int i2c_tinyS::read_(struct i2cStruct* i2c)
 int i2c_tinyS::peek_(struct i2cStruct* i2c)
 {
     if(i2c->rxBufferIndex >= i2c->rxBufferLength) return -1;
-    return i2c->rxBuffer[i2c->rxBufferIndex];
+    return i2c->Buffer[i2c->rxBufferIndex];
 }
 
 
@@ -149,7 +151,7 @@ int i2c_tinyS::peek_(struct i2cStruct* i2c)
 uint8_t i2c_tinyS::readByte_(struct i2cStruct* i2c)
 {
     if(i2c->rxBufferIndex >= i2c->rxBufferLength) return 0;
-    return i2c->rxBuffer[i2c->rxBufferIndex++];
+    return i2c->Buffer[i2c->rxBufferIndex++];
 }
 
 
@@ -160,7 +162,7 @@ uint8_t i2c_tinyS::readByte_(struct i2cStruct* i2c)
 uint8_t i2c_tinyS::peekByte_(struct i2cStruct* i2c)
 {
     if(i2c->rxBufferIndex >= i2c->rxBufferLength) return 0;
-    return i2c->rxBuffer[i2c->rxBufferIndex];
+    return i2c->Buffer[i2c->rxBufferIndex];
 }
 
 
@@ -176,30 +178,46 @@ void i2c_isr_handler()
     byte status = TWSSRA;
     if ((status & (_BV(TWC) | _BV(TWBE)))) {
         // Bus error or transmit collision
+        i2c->startCount = 0;
         TWSSRA |= (_BV(TWASIF) | _BV(TWDIF) | _BV(TWBE)); // Release hold
         return;
     }
     if ((status & _BV(TWASIF))) {
         if ((status & _BV(TWAS))) {
             // A valid address has been received
-            i2c->rxAddr = (TWSD >> 1); // store who am I
+            if (i2c->user_onAddrReceive != (void *)NULL) {
+                i2c->rxBufferIndex = 0;
+                if (!i2c->user_onAddrReceive(TWSD, i2c->startCount)) {
+                    i2c->startCount++;
+                    TWSCRB = (B0111 | TWI_HIGH_NOISE_MODE); // Send NACK
+                    return;
+                }
+            }
+            i2c->startCount++;
             if ((status & _BV(TWDIR))) {
                 // A master read operation is in progress
+                i2c->txBufferLength = 0;
                 if (i2c->user_onRequest != (void *)NULL) {
                     i2c->user_onRequest(); // load Tx buffer with data
                 }
+                i2c->txBufferIndex = 0;
             } else {
                 // A master write operation is in progress
                 i2c->rxBufferLength = 0;
             }
         } else {
             // Stop condition is detected
-            if (!(status & _BV(TWDIR))) {
+            if ((status & _BV(TWDIR))) {
+                if (i2c->user_onStop != (void *)NULL) {
+                    i2c->user_onStop();
+                }
+            } else {
                 if (i2c->user_onReceive != (void *)NULL) {
                     i2c->rxBufferIndex = 0;
                     i2c->user_onReceive(i2c->rxBufferLength);
                 }
             }
+            i2c->startCount = 0;
             TWSSRA = _BV(TWASIF); // clear interrupt
             return;
         }
@@ -207,7 +225,7 @@ void i2c_isr_handler()
         if ((status & _BV(TWDIR))) {
             // Send a data byte to master
             if (i2c->txBufferIndex < i2c->txBufferLength) {
-                TWSD = i2c->txBuffer[i2c->txBufferIndex++];
+                TWSD = i2c->Buffer[i2c->txBufferIndex++];
             } else {
                 // buffer overrun
                 TWSCRB = (B0010 | TWI_HIGH_NOISE_MODE); // Wait for any START condition
@@ -215,11 +233,11 @@ void i2c_isr_handler()
             }
         } else {
             // A data byte has been received
-            if (i2c->rxBufferLength < I2C_RX_BUFFER_LENGTH) {
-                i2c->rxBuffer[i2c->rxBufferLength++] = TWSD;
+            if (i2c->rxBufferLength < I2C_BUFFER_LENGTH) {
+                i2c->Buffer[i2c->rxBufferLength++] = TWSD;
             } else {
                 // buffer overrun
-                TWSCRB = (B0010 | TWI_HIGH_NOISE_MODE); // Complete transaction
+                TWSCRB = (B0110 | TWI_HIGH_NOISE_MODE); // Send NACK and wait for any START condition
                 return;
             }
         }
