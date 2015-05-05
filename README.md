@@ -99,7 +99,9 @@ Registers a function to be called when the device receives a sequence of start /
 _handler_: the function to be called when the slave receives its address; this should take two integer parameters
 (_address_ by which the device is called and _startcount_ the number of start so far in the current transmission) and return nothing,
 
-e.g.: ```void myHandler(uint8_t _address_, uint8_t _startcount_)```
+Returns true: the device send ACK to the master for going on;
+false: the device send NACK to the master and stop the current session.
+e.g.: ```boolean myHandler(uint8_t _address_, uint8_t _startcount_)```
 
 - - -
 ##### Wire.onReceive(_handler_)
