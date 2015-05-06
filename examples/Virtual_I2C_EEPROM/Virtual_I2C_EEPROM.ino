@@ -48,7 +48,6 @@ volatile boolean repeatedStart;
 
 boolean addressHandler(uint8_t slaveAddress, uint8_t startCount)
 {
-  int i = 0;
   repeatedStart = (startCount > 0 ? true : false);
   if (repeatedStart && Wire.available()) {
     wordAddr = Wire.read();
