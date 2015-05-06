@@ -144,7 +144,7 @@ public:
     // parameters:
     //      data = data byte
     //
-    virtual size_t write(uint8_t data);
+    inline size_t write(uint8_t data);
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n)          { return write((uint8_t)n); }
     inline size_t write(unsigned int n)  { return write((uint8_t)n); }
@@ -156,8 +156,8 @@ public:
     //      data = pointer to uint8_t (or char) array of data
     //      length = number of bytes to write
     //
-    virtual void write(const uint8_t* data, size_t quantity);
-    inline void write(const char* str) { write((const uint8_t*)str, strlen(str)); }
+    inline size_t write(const uint8_t* data, size_t quantity);
+    inline size_t write(const char* str) { write((const uint8_t*)str, strlen(str)); }
 
     // ------------------------------------------------------------------------------------------------------
     // Available - returns number of remaining available bytes in Rx buffer
