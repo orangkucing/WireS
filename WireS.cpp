@@ -186,8 +186,9 @@ void i2c_isr_handler()
         if ((status & _BV(TWAS))) {
             // A valid address has been received
             if (i2c->user_onAddrReceive != (void *)NULL) {
+                i2c->Addr = TWSD;
                 i2c->rxBufferIndex = 0;
-                if (!i2c->user_onAddrReceive(TWSD, i2c->startCount)) {
+                if (!i2c->user_onAddrReceive(i2c->Addr, i2c->startCount)) {
                     i2c->startCount++;
                     TWSCRB = (B0111 | TWI_HIGH_NOISE_MODE); // Send NACK
                     return;

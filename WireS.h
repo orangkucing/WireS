@@ -41,13 +41,13 @@
 // ------------------------------------------------------------------------------------------------------
 // Tx/Rx buffer sizes - modify these as needed.
 //
-#define I2C_BUFFER_LENGTH 64
+#define I2C_BUFFER_LENGTH 48
 
 // ------------------------------------------------------------------------------------------------------
 // Interrupt flag - uncomment and set below to make the specified pin high whenever the
 //                  I2C interrupt occurs.  This is useful as a trigger signal when using a logic analyzer.
 //
-//#define I2C_INTR_FLAG_PIN 6
+#define I2C_INTR_FLAG_PIN 6
 
 // ======================================================================================================
 // == End User Define Section ===========================================================================
@@ -82,6 +82,7 @@ struct i2cStruct
     volatile size_t   txBufferIndex;         // Tx Index                          (User&ISR)
     volatile size_t   txBufferLength;        // Tx Length                         (User&ISR)
     volatile uint8_t  startCount;            // repeated START count              (ISR)
+    uint8_t  Addr;                           // Tx/Rx address                     (User)
     boolean (*user_onAddrReceive)(uint8_t, uint8_t);  // Slave Addr Callback Function      (User)
     void (*user_onReceive)(size_t);          // Slave Rx Callback Function        (User)
     void (*user_onRequest)(void);            // Slave Tx Callback Function        (User)
