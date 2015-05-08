@@ -78,7 +78,7 @@ void i2c_tinyS::begin_(struct i2cStruct* i2c, uint8_t address, uint8_t mask)
         TWSAM = mask;
     }
     i2c->startCount = -1;
-    TWSCRA = (_BV(TWDIE) | _BV(TWASIE) | _BV(TWEN) | _BV(TWSIE));
+    TWSCRA = (_BV(TWSHE) | _BV(TWDIE) | _BV(TWASIE) | _BV(TWEN) | _BV(TWSIE));
 }
 
 
