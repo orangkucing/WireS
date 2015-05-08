@@ -83,7 +83,7 @@ void requestHandler()
 void stopHandler()
 {
   if (repeatedStart) {
-    wordAddr = (wordAddr + Wire.bytesSent()) % ROMSIZE;
+    wordAddr = (wordAddr + Wire.getTransmitBytes()) % ROMSIZE;
   }
 }
 

@@ -77,6 +77,7 @@ void i2c_tinyS::begin_(struct i2cStruct* i2c, uint8_t address, uint8_t mask)
     if (mask != 0) {
         TWSAM = mask;
     }
+    i2c->startCount = -1;
     TWSCRA = (_BV(TWDIE) | _BV(TWASIE) | _BV(TWEN) | _BV(TWSIE));
 }
 
@@ -178,23 +179,22 @@ void i2c_isr_handler()
     byte status = TWSSRA;
     if ((status & (_BV(TWC) | _BV(TWBE)))) {
         // Bus error or transmit collision
-        i2c->startCount = 0;
+        i2c->startCount = -1;
         TWSSRA |= (_BV(TWASIF) | _BV(TWDIF) | _BV(TWBE)); // Release hold
         return;
     }
     if ((status & _BV(TWASIF))) {
         if ((status & _BV(TWAS))) {
             // A valid address has been received
+            i2c->Addr = TWSD;
+            i2c->startCount++;
             if (i2c->user_onAddrReceive != (void *)NULL) {
-                i2c->Addr = TWSD;
                 i2c->rxBufferIndex = 0;
                 if (!i2c->user_onAddrReceive(i2c->Addr, i2c->startCount)) {
-                    i2c->startCount++;
                     TWSCRB = (B0111 | TWI_HIGH_NOISE_MODE); // Send NACK
                     return;
                 }
             }
-            i2c->startCount++;
             if ((status & _BV(TWDIR))) {
                 // A master read operation is in progress
                 i2c->txBufferLength = 0;
@@ -218,7 +218,7 @@ void i2c_isr_handler()
                     i2c->user_onReceive(i2c->rxBufferLength);
                 }
             }
-            i2c->startCount = 0;
+            i2c->startCount = -1;
             TWSSRA = _BV(TWASIF); // clear interrupt
             return;
         }

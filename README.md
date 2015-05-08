@@ -87,7 +87,7 @@ Reads a byte that was transmitted from a master.
 This should be called on inside the onReceive() handler or under repeated start condition onAddrReceive() handler.
 
 - - -
-##### Wire.bytesSent()
+##### Wire.getTransmitBytes()
 Returns the number of bytes actually sent with Wire.write().
 
 This should be called on inside the onStop() handler or under repeated start condition onAddrReceive() handler.
