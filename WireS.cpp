@@ -74,9 +74,7 @@ void i2c_tinyS::begin_(struct i2cStruct* i2c, uint8_t address, uint8_t mask)
 {
     I2C_INTR_FLAG_INIT; // init I2C interrupt flag if used
     TWSA = (address << 1);
-    if (mask != 0) {
-        TWSAM = mask;
-    }
+    TWSAM = mask; // if mask == 0 then only one address
     i2c->startCount = -1;
     TWSCRA = (_BV(TWSHE) | _BV(TWDIE) | _BV(TWASIE) | _BV(TWEN) | _BV(TWSIE));
 }
