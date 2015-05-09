@@ -41,7 +41,7 @@
 // ------------------------------------------------------------------------------------------------------
 // Tx/Rx buffer sizes - modify these as needed.
 //
-#define I2C_BUFFER_LENGTH 48
+#define I2C_BUFFER_LENGTH 64
 
 // ------------------------------------------------------------------------------------------------------
 // Interrupt flag - uncomment and set below to make the specified pin high whenever the
