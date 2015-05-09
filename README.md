@@ -72,7 +72,7 @@ an array of data to send as bytes is _data_ whose size is in _length_.
 
 Wire.write() returns a value that is equal to the number of bytes written to the internal buffer
 and the value is not equal to the number of bytes actually transmitted through the I2C bus.
-In order to know the actual numbers sent please use Wire.bytesSent() in the handler of Wire.onStop() (or Wire.onAddrReceive) and Wire.bytesSent() instead.
+In order to know the actual numbers sent please use Wire.getTransmitBytes() in the handler of Wire.onStop() (or Wire.onAddrReceive) instead.
 
 - - -
 ##### Wire.available()
