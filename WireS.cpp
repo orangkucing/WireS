@@ -46,6 +46,11 @@
 #define TWAE 0
 #endif
  
+// use MSB of i2c->Addr as a flag to indicate 10-bit slave address is on receiving
+#define SET_TENBIT   do { i2c->Addr |= 0x8000; } while(0)
+#define CLEAR_TENBIT do { i2c->Addr &= 0x7FFF; } while(0)
+#define IS_TENBIT (i2c->Addr & 0x8000)
+
 struct i2cStruct i2c_tinyS::i2cData;
 
 // ------------------------------------------------------------------------------------------------------
@@ -178,14 +183,25 @@ void i2c_isr_handler()
     if ((status & (_BV(TWC) | _BV(TWBE)))) {
         // Bus error or transmit collision
         i2c->startCount = -1;
+        CLEAR_TENBIT;
         TWSSRA |= (_BV(TWASIF) | _BV(TWDIF) | _BV(TWBE)); // Release hold
         return;
     }
-    if ((status & _BV(TWASIF))) {
+    if ((status & _BV(TWASIF)) || IS_TENBIT) {
         if ((status & _BV(TWAS))) {
             // A valid address has been received
-            i2c->Addr = TWSD;
-            i2c->startCount++;
+            if (IS_TENBIT) {
+                i2c->Addr = (((i2c->Addr & B110) << 7) | TWSD);
+                // CLEAR_TENBIT;
+            } else {
+                i2c->Addr = TWSD;
+                i2c->startCount++;
+                if ((i2c->Addr & B11111001) == B11110000) {
+                    SET_TENBIT;
+                    TWSCRB = (B0011 | TWI_HIGH_NOISE_MODE); // Send ACK
+                    return;
+                }
+            }
             if (i2c->user_onAddrReceive != (void *)NULL) {
                 i2c->rxBufferIndex = 0;
                 if (!i2c->user_onAddrReceive(i2c->Addr, i2c->startCount)) {
@@ -217,6 +233,7 @@ void i2c_isr_handler()
                 }
             }
             i2c->startCount = -1;
+            CLEAR_TENBIT;
             TWSSRA = _BV(TWASIF); // clear interrupt
             return;
         }

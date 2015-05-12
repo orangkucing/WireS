@@ -82,8 +82,8 @@ struct i2cStruct
     volatile size_t   txBufferIndex;         // Tx Index                          (User&ISR)
     volatile size_t   txBufferLength;        // Tx Length                         (User&ISR)
     volatile char     startCount;            // repeated START count              (User&ISR)
-    volatile uint8_t  Addr;                  // Tx/Rx address                     (User&ISR)
-    boolean (*user_onAddrReceive)(uint8_t, uint8_t);  // Slave Addr Callback Function      (User)
+    volatile uint16_t  Addr;                 // Tx/Rx address                     (User&ISR)
+    boolean (*user_onAddrReceive)(uint16_t, uint8_t);  // Slave Addr Callback Function      (User)
     void (*user_onReceive)(size_t);          // Slave Rx Callback Function        (User)
     void (*user_onRequest)(void);            // Slave Tx Callback Function        (User)
     void (*user_onStop)(void);               // Stop Callback Function            (User)
@@ -215,7 +215,7 @@ public:
     // Get Rx Address - returns target address of incoming I2C command.
     // return: address of last received command
     //
-    inline uint8_t getRxAddr(void) { return i2c->Addr; }
+    inline uint16_t getRxAddr(void) { return i2c->Addr; }
 
     // ------------------------------------------------------------------------------------------------------
     // Get number of sent bytes
@@ -226,7 +226,7 @@ public:
     // ------------------------------------------------------------------------------------------------------
     // Set callback function for Slave address received
     //
-    inline void onAddrReceive(boolean (*function)(uint8_t, uint8_t)) { i2c->user_onAddrReceive = function; }
+    inline void onAddrReceive(boolean (*function)(uint16_t, uint8_t)) { i2c->user_onAddrReceive = function; }
 
     // ------------------------------------------------------------------------------------------------------
     // Set callback function for Slave Rx

@@ -46,7 +46,7 @@ THE SOFTWARE.
 volatile unsigned wordAddr;
 volatile boolean repeatedStart;
 
-boolean addressHandler(uint8_t slaveAddress, uint8_t startCount)
+boolean addressHandler(uint16_t slaveAddress, uint8_t startCount)
 {
   repeatedStart = (startCount > 0 ? true : false);
   if (repeatedStart && Wire.available()) {
