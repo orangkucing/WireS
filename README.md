@@ -60,6 +60,8 @@ Wire.begin(0x50, B1110);
 ```
 accepts transactions targeted to slave addresses from 0x50 to 0x57.
 
+Note: 10-bit slave address is supported but the lower 7-bit part of address needs to be handled (ACKed/NACKed) by software in the onAddrReceive handler.
+
 - - -
 ##### Wire.write(_value_)
 ##### Wire.write(_string_)
@@ -94,15 +96,15 @@ This should be called on inside the onStop() handler or under repeated start con
 
 - - -
 ##### Wire.onAddrReceive(_handler_)
-Registers a function to be called when the device receives a sequence of start / 7-bit address / direction bit from a master.
+Registers a function to be called when the device receives a sequence of start / 7-bit or 10-bit address / direction bit from a master.
 
 _handler_: the function to be called when the slave receives its address; this should take two integer parameters
-(_address_[7:1] by which the device is called, _address_[0] direction, and _startCount_ the number of start so far in the current transmission) and return nothing,
+(_address_[7:1] or _address_[10:1] by which the device is called, _address_[0] direction, and _startCount_ the number of start so far in the current transmission) and return nothing,
 
 Returns true: the device send ACK to the master for going on;
 false: the device send NACK to the master and stop the current session.
 
-e.g.: ```boolean myHandler(uint8_t _address_, uint8_t _startCount_)```
+e.g.: ```boolean myHandler(uint16_t _address_, uint8_t _startCount_)```
 
 - - -
 ##### Wire.onReceive(_handler_)
