@@ -157,12 +157,8 @@ public:
     //      data = pointer to uint8_t (or char) array of data
     //      length = number of bytes to write
     //
-    // for version 1.7 Print.h
-    //size_t write(const uint8_t* data, size_t quantity);
-    //inline size_t write(const char* str) { write((const uint8_t*)str, strlen(str)); }
-    // for older Print.h (included in arduino-tiny-841)
-    void write(const uint8_t* data, size_t quantity);
-    inline void write(const char* str) { write((const uint8_t*)str, strlen(str)); }
+    size_t write(const uint8_t* data, size_t quantity);
+    inline size_t write(const char* str) { write((const uint8_t*)str, strlen(str)); }
 
     // ------------------------------------------------------------------------------------------------------
     // Available - returns number of remaining available bytes in Rx buffer

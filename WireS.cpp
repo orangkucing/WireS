@@ -108,10 +108,7 @@ size_t i2c_tinyS::write(uint8_t data)
 //      data = pointer to uint8_t array of data
 //      length = number of bytes to write
 //
-// for version 1.7 Print.h
-//size_t i2c_tinyS::write(const uint8_t* data, size_t quantity)
-// for older Print.h (included in arduino-tiny-841)
-void i2c_tinyS::write(const uint8_t* data, size_t quantity)
+size_t i2c_tinyS::write(const uint8_t* data, size_t quantity)
 {
     if(i2c->txBufferLength < I2C_BUFFER_LENGTH)
     {
