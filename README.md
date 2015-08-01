@@ -1,10 +1,10 @@
 # WireS
-Slave only hardware I2C library for ATtiny1634 and ATtiny841.
+Slave only hardware I2C library for ATtiny1634, ATtiny441/841, and ATtiny828.
 
 ### Introduction
 
-Some Atmel microcontrollers have a built-in slave only I2C interface. 
-For example, ATtiny1634, ATtiny441/841, ATtiny20/40 and ATtiny828 are this kind. 
+Some Atmel microcontrollers have a built-in slave only I2C interface, namely, 
+ATtiny1634, ATtiny441/841, ATtiny20/40, and ATtiny828. 
 The hardware is completely different from the one in popular Arduinos as ATmega328 etc. 
 so another version of Wire Library was needed.
 
@@ -26,12 +26,12 @@ that makes ATtiny microcontroller's internal EEPROM accessible as an external I2
 
 ### Usage
 
-Install Arduino IDE and Arduino core for ATtiny1634 and ATtiny841 to your PC.
+Install Arduino IDE and Arduino core for ATtiny1634, ATtiny441/841, and ATtiny828 to your PC.
 
 * [Arduino IDE download](http://www.arduino.cc/en/Main/Software)
-* [Arduino core for ATtiny1634 and ATtiny841](https://github.com/SpenceKonde/arduino-tiny-841) A fork of shimniok's fork of arduino-tiny by SpenceKonde
+* [Arduino core for ATtiny1634, ATtiny441/841, and ATtiny828](https://github.com/SpenceKonde/arduino-tiny-841) A fork of shimniok's fork of arduino-tiny by SpenceKonde
 
-(Currently there's no Arduino core for ATtiny40 and ATtiny828.)
+(Currently there's no Arduino core for ATtiny20/40.)
 
 Then download the zip file of WireS, unpack it to your library directory,
 and you are ready to use WireS by including the header file as
