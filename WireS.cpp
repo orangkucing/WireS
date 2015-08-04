@@ -1,5 +1,5 @@
 /*
-    WireS - Slave only I2C library for ATtiny1634 and ATtiny841
+    WireS - Slave only I2C library for ATtiny1634, ATtiny441/841, and ATtiny828.
     Copyright (c) 2015 by Hisashi Ito (info at mewpro.cc)
 
     ------------------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@
 
 #if defined(__AVR_ATtiny1634__) || defined(__AVR_ATtiny841__) || defined(__AVR_ATtiny441__) || defined(__AVR_ATtiny828__) || defined(__AVR_ATtiny40__) || defined(__AVR_ATtiny20__)
 
-// Disclaimer: The author only confirmed the library to work with ATtiny1634 and ATtiny841.
+// Disclaimer: The author only confirmed the library to work with ATtiny1634, ATtiny841, and ATtiny828.
 
 #include <avr/io.h>
 #include "WireS.h"
