@@ -29,7 +29,7 @@ that makes ATtiny microcontroller's internal EEPROM accessible as an external I2
 Install Arduino IDE and Arduino core for ATtiny1634, ATtiny441/841, and ATtiny828 to your PC.
 
 * [Arduino IDE download](http://www.arduino.cc/en/Main/Software)
-* [Arduino core for ATtiny1634, ATtiny441/841, and ATtiny828](https://github.com/SpenceKonde/arduino-tiny-841) A fork of shimniok's fork of arduino-tiny by SpenceKonde
+* [Arduino core for ATtiny](https://github.com/SpenceKonde/ATTinyCore) 1634, x313, x4, x41, x5, x61, x7, x8 and 828 for Arduino 1.6.x 
 
 (Currently there's no Arduino core for ATtiny20/40.)
 
