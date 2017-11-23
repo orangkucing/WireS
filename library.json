@@ -1,0 +1,12 @@
+{
+  "name": "WireS",
+  "keywords": "i2c, wire",
+  "description": "Slave only hardware I2C library for ATtiny1634, ATtiny441/841, and ATtiny828",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orangkucing/WireS.git"
+  },
+  "version": "1.0.0",
+  "frameworks": "arduino",
+  "platforms": "atmelavr"
+}
